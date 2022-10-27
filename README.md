@@ -2,10 +2,15 @@
 
 Periodically Aggregates IOC Feeds so user can easily select the IOC form trusted souces
 
+Note: **Try to do this in a virutalenv!**
+
 ## Step 1: Install the required dependencies
 ```bash
-pip freeze > requirements.txt 
+cd aggregator
+pip install -r requirements.txt 
+
 ```
+
 
 ## Step 2: Migrations
 ```bash
