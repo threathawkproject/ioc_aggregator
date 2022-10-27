@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # My Apps
     "ioc_feeds.apps.IocFeedsConfig",
+    # Third party
+    "django_apscheduler",
 ]
 
 MIDDLEWARE = [
