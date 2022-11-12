@@ -1,4 +1,5 @@
 from random import randrange
+from typing import List
 from django.conf import settings
 from django.core.management.base import BaseCommand
 import requests
@@ -18,14 +19,13 @@ def fetch_darklist():
         response = requests.get("https://darklist.de/raw.php")
         response.raise_for_status()
         ip_addresses = response.text.strip().split()[11:]
-        iocs = []
-        for ip in ip_addresses:
-            ioc = {
+        iocs = list(map(lambda ip : {
                 "ioc": ip,
-                "type": "IP address",
+                "type": "IP",
                 "source": "darklist"
-            }
-            iocs.append(ioc)
+            },
+            ip_addresses
+        ))
         return iocs
     except Exception as e:
         print(f"Error occured: {e}")
@@ -49,11 +49,12 @@ def fetch_botvrij():
                     "type": "email",
                     "source": "botvrij"
                 }, 
-                values)
+                values
+            )
         )
         return emails
     except Exception as e:
-        return 
+        return []
 def publish(iocs):
     try:
         producer = KafkaProducerWrapper.instance()
@@ -76,25 +77,26 @@ class run_aggregator():
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        scheduler = BlockingScheduler(timezone=settings.TIME_ZONE)
-        scheduler.add_jobstore(DjangoJobStore(), "default")
+        run_aggregator()
+        # scheduler = BlockingScheduler(timezone=settings.TIME_ZONE)
+        # scheduler.add_jobstore(DjangoJobStore(), "default")
 
-        scheduler.add_job(
-            run_aggregator,
-            trigger="interval",
-            minutes=1,
-            id="Aggregator",
-            max_instances=1,
-            replace_existing=True,
-        )
+        # scheduler.add_job(
+        #     run_aggregator,
+        #     trigger="interval",
+        #     minutes=5,
+        #     id="Aggregator",
+        #     max_instances=1,
+        #     replace_existing=True,
+        # )
 
-        try:
-            print("Starting scheduler...")
-            scheduler.start()
-        except KeyboardInterrupt:
-            print("Stopping scheduler...")
-            scheduler.shutdown()
-            print("Scheduler shut down successfully!")
+        # try:
+        #     print("Starting scheduler...")
+        #     scheduler.start()
+        # except KeyboardInterrupt:
+        #     print("Stopping scheduler...")
+        #     scheduler.shutdown()
+        #     print("Scheduler shut down successfully!")
 
 
         # ioc_feed_respone = []
