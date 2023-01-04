@@ -14,8 +14,8 @@ class KafkaProducerWrapper(object):
             self.__instance = KafkaProducer(
                 # TODO: ADD CONFIGURATION THRU DJANGO!!
                 bootstrap_servers=[
-                        "localhost:9092"
-                    ],
+                    "localhost:9092"
+                ],
                 value_serializer=lambda data: dumps(data).encode('utf-8')
             )
         return self.__instance
