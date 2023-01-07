@@ -115,20 +115,23 @@ def publish(iocs):
         for ioc in iocs:
             producer.send("ioc_feed", ioc)
             # time.sleep(1)
+
     except Exception as e:
         print(f"Error: {e}")
 
 
 class run_aggregator():
-    ioc_feed_respone = []
+    ioc_feed_response = []
+
     botvrij_iocs = fetch_botvrij()
-    darklist_iocs = fetch_darklist()
     if len(botvrij_iocs) > 0:
-        ioc_feed_respone.extend(botvrij_iocs)
+        ioc_feed_response.extend(botvrij_iocs)
+
+    darklist_iocs = fetch_darklist()
     if len(darklist_iocs) > 0:
-        ioc_feed_respone.extend(darklist_iocs)
-    # print(ioc_feed_respone)
-    publish(ioc_feed_respone)
+        ioc_feed_response.extend(darklist_iocs)
+
+    publish(ioc_feed_response)
 
 
 class Command(BaseCommand):
