@@ -1,1 +1,10 @@
 test.http
+# Pyhon byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+
+# VSCode
+.vscode
+
+/src/test.py
+/test_file.txt
