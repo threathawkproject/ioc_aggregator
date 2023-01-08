@@ -1,1 +1,9 @@
-GET http://localhost:8000/api/ioc_feeds
+# GET https://urlhaus.abuse.ch/downloads/text/
+
+POST  https://mb-api.abuse.ch/api/v1/
+API-KEY: bcdbf6dfe3906f88d361dc88780b78f0
+
+{
+    "query": "get_recent",
+    "selector": "time",
+}

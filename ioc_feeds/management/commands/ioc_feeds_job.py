@@ -24,7 +24,7 @@ def fetch_darklist():
         ip_addresses = response.text.strip().split()[11:]
         iocs = list(map(lambda ip: {
             "ioc": ip,
-            "type": "IP",
+            "type": "ip",
             "source": "Darklist"
         },
             ip_addresses
@@ -46,7 +46,7 @@ def fetch_blocklist():
         ip_addresses = response.text.strip().split("\n")
         iocs = list(map(lambda ip: {
             "ioc": ip,
-            "type": "IP",
+            "type": "ip",
             "source": "Blocklist"
         },
             ip_addresses
@@ -71,7 +71,7 @@ def fetch_abuseIPDB():
         data = response.json()
         iocs = list(map(lambda element: {
             "ioc": element["ipAddress"],
-            "type": "IP",
+            "type": "ip",
             "source": "AbuseIPDB",
             "location": element["countryCode"]
         },
@@ -95,10 +95,10 @@ def fetch_botvrij():
         values = response.text.strip().split("\n")[6:]
         emails = list(
             map(lambda sentence: {
-                "ioc": sentence.strip().split(" ")[0],
-                "type": "Email",
-                "source": "Botvrij"
-            },
+                    "ioc": sentence.strip().split(" ")[0],
+                    "type": "email",
+                    "source": "Botvrij"
+                },
                 values
             )
         )
@@ -108,6 +108,65 @@ def fetch_botvrij():
         print(f"Error: {e}")
         return []
 
+
+def fetch_urlhaus():
+    print("Fetching from URL...")
+    try:
+        response = requests.get("https://urlhaus.abuse.ch/downloads/text/")
+        response.raise_for_status()
+        values = response.text.strip().split("\r")[9:]
+        urls = list(
+            map(lambda url: {
+                    "ioc": url.strip(),
+                    "type": "url",
+                    "source": "URLhaus" 
+                },
+                values
+            )
+        )
+        return urls
+    except Exception as e:
+        print(f"Error: {e}")
+        return []
+
+def fetch_malware_bazaar():
+    print("Fetching from malwareBazaar")
+
+    headers = { 'API-KEY': 'bcdbf6dfe3906f88d361dc88780b78f0' }
+    data = {
+        'query': 'get_recent',
+        'selector': "100",
+    }
+
+    try:
+        response = requests.post('https://mb-api.abuse.ch/api/v1/', data=data, timeout=15, headers=headers)
+        response.raise_for_status()
+        values = response.json()
+        samples = values['data']
+        hashes = []
+        for sample in samples:
+            sha256_hash = {
+                "ioc": sample['sha256_hash'],
+                "type": "sha256",
+                "source": "MalwareBazaar"
+            }
+            sha1_hash = {
+                "ioc": sample['sha1_hash'],
+                "type": "sha1",
+                "source": "MalwareBazaar"
+            }
+            md5_hash = {
+                "ioc": sample['md5_hash'],
+                "type": "md5",
+                "source": "MalwareBazaar"
+            }
+            hashes.append(sha256_hash)
+            hashes.append(sha1_hash)
+            hashes.append(md5_hash)
+        return hashes
+    except Exception as e:
+        print(f"Error: {e}")
+        return []
 
 def publish(iocs):
     try:
@@ -123,10 +182,16 @@ class run_aggregator():
     ioc_feed_respone = []
     botvrij_iocs = fetch_botvrij()
     darklist_iocs = fetch_darklist()
+    urlhaus_iocs = fetch_urlhaus()
+    malware_bazaar_iocs = fetch_malware_bazaar()
     if len(botvrij_iocs) > 0:
         ioc_feed_respone.extend(botvrij_iocs)
     if len(darklist_iocs) > 0:
         ioc_feed_respone.extend(darklist_iocs)
+    if len(urlhaus_iocs) > 0:
+        ioc_feed_respone.extend(urlhaus_iocs)
+    if len(malware_bazaar_iocs) > 0:
+        ioc_feed_respone.extend(malware_bazaar_iocs)
     # print(ioc_feed_respone)
     publish(ioc_feed_respone)
 
