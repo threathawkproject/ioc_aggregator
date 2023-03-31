@@ -4,6 +4,8 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 import requests
 from ioc_feeds.producer import KafkaProducerWrapper
+from ioc_feeds.models import Stats
+
 import time
 
 # Third party libraries
@@ -180,6 +182,13 @@ def publish(iocs):
 
 
 class run_aggregator():
+    # whenever the aggregator runs set the new_iocs_count from the stat to 0!
+    stats, created = Stats.objects.get_or_create(pk=1)
+    stats.new_iocs_count = 0
+    stats.save()
+
+    
+
     ioc_feed_response = []
 
     botvrij_iocs = fetch_botvrij()

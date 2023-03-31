@@ -8,3 +8,8 @@ __pycache__/
 
 /src/test.py
 /test_file.txt
+/Lib
+/Scripts
+dummy-data.json
+pyvenv.cfg
+*.http
