@@ -5,9 +5,9 @@ This is our API which will basically be to query our IOCS
 from django.shortcuts import render
 from rest_framework import viewsets
 from rest_framework.response import Response
+from rest_framework.decorators import action
 
-
-from ioc_feeds.models import Ioc, IndicatorType
+from ioc_feeds.models import Ioc, IndicatorType, Stats
 from ioc_feeds.serializers import IoCSerializer
 from ioc_feeds.pagination import IoCViewSetPagination
 
@@ -28,6 +28,15 @@ class IocViewSet(viewsets.ViewSet):
 
 # This view gets all the iocs from a specifec source!
 class SourceIocViewSet(viewsets.ViewSet):
+
+    @action(detail=False, methods=["GET"])
+    def length(self, request, source):
+        iocs = self.__get_iocs_from_source(source)
+        data = {
+            "length": len(iocs),
+        }
+        return Response(data)
+
     # helper function to get all the iocs from a specific source!
     def __get_iocs_from_source(self, source):
         print(f"getting iocs from source {source}")
@@ -39,6 +48,7 @@ class SourceIocViewSet(viewsets.ViewSet):
         serializer = IoCSerializer(iocs, many=True)
         print(serializer)
         return Response(serializer.data)
+    
 
 # This view gets all the iocs from a date i.e less than equal to day, month, year! 
 """
@@ -60,9 +70,37 @@ class DateIocViewSet(viewsets.ViewSet):
 
 # This view gets all the iocs of a particular IOC type
 class IocTypeViewSet(viewsets.ViewSet):
+
+    @action(detail=False, methods=["GET"])
+    def length(self, request, ioc_type):
+        indicator_type = IndicatorType[ioc_type]
+        iocs = Ioc.objects.filter(type=indicator_type)
+        data = {
+            "length": len(iocs),
+        }
+        return Response(data)
+
     def get(self, request, ioc_type):
         indicator_type = IndicatorType[ioc_type]
         iocs = Ioc.objects.filter(type=indicator_type)
         serializer = IoCSerializer(iocs, many=True)
         print(serializer)
         return Response(serializer.data)
+
+class StatsViewSet(viewsets.ViewSet):
+
+    @action(detail=False, methods=["GET"])
+    def new_iocs_length(self, request):
+        stats, created = Stats.objects.get_or_create(pk=1)
+        new_iocs = {
+            "length": stats.new_iocs_count
+        }
+        return Response(new_iocs)
+
+    @action(detail=False, methods=["GET"])
+    def frequent_iocs_length(self, request):
+        stats, created = Stats.objects.get_or_create(pk=1)
+        frequent_iocs = {
+            "length": stats.frequent_iocs_count
+        }
+        return Response(frequent_iocs)

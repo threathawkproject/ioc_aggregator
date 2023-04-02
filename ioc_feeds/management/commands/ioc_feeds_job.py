@@ -203,7 +203,6 @@ class run_aggregator():
         ioc_feed_response.extend(urlhaus_iocs)
     if len(malware_bazaar_iocs) > 0:
         ioc_feed_response.extend(malware_bazaar_iocs)
-    # print(ioc_feed_respone)
     publish(ioc_feed_response)
 
 

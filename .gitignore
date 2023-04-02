@@ -10,6 +10,8 @@ __pycache__/
 /test_file.txt
 /Lib
 /Scripts
+/ioc_feeds/migrations/0001_initial.py
 dummy-data.json
 pyvenv.cfg
-*.http
+
+test.http
