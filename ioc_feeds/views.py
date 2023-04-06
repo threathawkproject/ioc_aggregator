@@ -45,9 +45,10 @@ class SourceIocViewSet(viewsets.ViewSet):
 
     def get(self, request, source):
         iocs = self.__get_iocs_from_source(source)        
-        serializer = IoCSerializer(iocs, many=True)
-        print(serializer)
-        return Response(serializer.data)
+        paginator = IoCViewSetPagination()
+        paginated_iocs = paginator.paginate_queryset(iocs, request)
+        serializer = IoCSerializer(paginated_iocs, many=True)
+        return paginator.get_paginated_response(serializer.data)
     
 
 # This view gets all the iocs from a date i.e less than equal to day, month, year! 
@@ -83,9 +84,10 @@ class IocTypeViewSet(viewsets.ViewSet):
     def get(self, request, ioc_type):
         indicator_type = IndicatorType[ioc_type]
         iocs = Ioc.objects.filter(type=indicator_type)
-        serializer = IoCSerializer(iocs, many=True)
-        print(serializer)
-        return Response(serializer.data)
+        paginator = IoCViewSetPagination()
+        paginated_iocs = paginator.paginate_queryset(iocs, request)
+        serializer = IoCSerializer(paginated_iocs, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
 class StatsViewSet(viewsets.ViewSet):
 
