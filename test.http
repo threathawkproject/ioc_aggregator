@@ -1,4 +1,4 @@
-GET http://localhost:8000/api/ioc_feeds/stats/frequent_iocs/length
+GET http://localhost:8000/api/ioc_feeds/ioc_type/count
 
 
 

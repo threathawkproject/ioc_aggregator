@@ -14,7 +14,8 @@ def add(ioc):
         Ioc.objects.create(
             ioc=ioc["ioc"],
             type=ioc["type"],
-            sources=sources
+            sources=sources,
+            location=ioc["location"] if ioc["location"] is not None else None
         )
         # adding to new_ioc_count from stats table
         stats, created = Stats.objects.get_or_create(pk=1)
@@ -33,6 +34,8 @@ def update(ioc):
         # if source is not in the list of sources add it!
         if ioc["source"] not in gotten_ioc.sources:
             gotten_ioc.sources.append(ioc["source"])
+        if ioc["location"] is not None:
+            gotten_ioc.location = ioc["location"] 
         gotten_ioc.frequency += 1
         gotten_ioc.save()
         stats, created = Stats.objects.get_or_create(pk=1)

@@ -11,6 +11,7 @@ from ioc_feeds.models import Ioc, IndicatorType, Stats
 from ioc_feeds.serializers import IoCSerializer
 from ioc_feeds.pagination import IoCViewSetPagination
 
+import ioc_feeds.consts
 
 import datetime
 
@@ -30,12 +31,13 @@ class IocViewSet(viewsets.ViewSet):
 class SourceIocViewSet(viewsets.ViewSet):
 
     @action(detail=False, methods=["GET"])
-    def length(self, request, source):
-        iocs = self.__get_iocs_from_source(source)
-        data = {
-            "length": len(iocs),
-        }
-        return Response(data)
+    def count(self, request):
+        count = {}
+        for source in ioc_feeds.consts.sources:
+            source_count = Ioc.objects.filter(sources__contains=source).count()
+            count[source] = source_count
+
+        return Response(count) 
 
     # helper function to get all the iocs from a specific source!
     def __get_iocs_from_source(self, source):
@@ -73,13 +75,12 @@ class DateIocViewSet(viewsets.ViewSet):
 class IocTypeViewSet(viewsets.ViewSet):
 
     @action(detail=False, methods=["GET"])
-    def length(self, request, ioc_type):
-        indicator_type = IndicatorType[ioc_type]
-        iocs = Ioc.objects.filter(type=indicator_type)
-        data = {
-            "length": len(iocs),
-        }
-        return Response(data)
+    def count(self, request):
+        count = {}
+        for indicator_type in IndicatorType:
+            iocs_count = Ioc.objects.filter(type=indicator_type).count()
+            count[indicator_type.name] = iocs_count
+        return Response(count)
 
     def get(self, request, ioc_type):
         indicator_type = IndicatorType[ioc_type]

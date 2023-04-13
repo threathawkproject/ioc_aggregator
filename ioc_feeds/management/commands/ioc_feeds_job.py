@@ -5,6 +5,7 @@ from django.core.management.base import BaseCommand
 import requests
 from ioc_feeds.producer import KafkaProducerWrapper
 from ioc_feeds.models import Stats
+import json
 
 import time
 
@@ -27,7 +28,8 @@ def fetch_darklist():
         iocs = list(map(lambda ip: {
             "ioc": ip,
             "type": "ip",
-            "source": "Darklist"
+            "source": "Darklist",
+            "location": None
         },
             ip_addresses
         ))
@@ -49,7 +51,8 @@ def fetch_blocklist():
         iocs = list(map(lambda ip: {
             "ioc": ip,
             "type": "ip",
-            "source": "Blocklist"
+            "source": "Blocklist",
+            "location": None
         },
             ip_addresses
         ))
@@ -75,7 +78,9 @@ def fetch_abuseIPDB():
             "ioc": element["ipAddress"],
             "type": "ip",
             "source": "AbuseIPDB",
-            "location": element["countryCode"]
+            "location": {
+                "countryCode": element["countryCode"]
+            }
         },
             data["data"]
         ))
@@ -99,7 +104,8 @@ def fetch_botvrij():
             map(lambda sentence: {
                     "ioc": sentence.strip().split(" ")[0],
                     "type": "email",
-                    "source": "Botvrij"
+                    "source": "Botvrij",
+                    "location": None
                 },
                 values
             )
@@ -121,7 +127,8 @@ def fetch_urlhaus():
             map(lambda url: {
                     "ioc": url.strip(),
                     "type": "url",
-                    "source": "URLhaus" 
+                    "source": "URLhaus",
+                    "location": None 
                 },
                 values
             )
@@ -150,17 +157,20 @@ def fetch_malware_bazaar():
             sha256_hash = {
                 "ioc": sample['sha256_hash'],
                 "type": "sha256",
-                "source": "MalwareBazaar"
+                "source": "MalwareBazaar",
+                "location": None
             }
             sha1_hash = {
                 "ioc": sample['sha1_hash'],
                 "type": "sha1",
-                "source": "MalwareBazaar"
+                "source": "MalwareBazaar",
+                "location": None
             }
             md5_hash = {
                 "ioc": sample['md5_hash'],
                 "type": "md5",
-                "source": "MalwareBazaar"
+                "source": "MalwareBazaar",
+                "location": None
             }
             hashes.append(sha256_hash)
             hashes.append(sha1_hash)
@@ -195,6 +205,8 @@ class run_aggregator():
     darklist_iocs = fetch_darklist()
     urlhaus_iocs = fetch_urlhaus()
     malware_bazaar_iocs = fetch_malware_bazaar()
+    blocklist_iocs = fetch_blocklist()
+    abuse_iocs = fetch_abuseIPDB()
     if len(botvrij_iocs) > 0:
         ioc_feed_response.extend(botvrij_iocs)
     if len(darklist_iocs) > 0:
@@ -203,6 +215,10 @@ class run_aggregator():
         ioc_feed_response.extend(urlhaus_iocs)
     if len(malware_bazaar_iocs) > 0:
         ioc_feed_response.extend(malware_bazaar_iocs)
+    if len(blocklist_iocs) > 0:
+        ioc_feed_response.extend(blocklist_iocs)
+    if len(abuse_iocs) > 0:
+        ioc_feed_response.extend(abuse_iocs)        
     publish(ioc_feed_response)
 
 

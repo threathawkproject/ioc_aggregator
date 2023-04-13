@@ -14,8 +14,8 @@ urlpatterns = [
     path('ioc_feeds/sources/<str:source>/', SourceIocViewSet.as_view({
         "get": "get"
     })),
-    path('ioc_feeds/sources/<str:source>/length/', SourceIocViewSet.as_view({
-        "get": "length"
+    path('ioc_feeds/sources/count', SourceIocViewSet.as_view({
+        "get": "count"
     })),
     path('ioc_feeds/date', DateIocViewSet.as_view({
         "get": "get"
@@ -23,8 +23,8 @@ urlpatterns = [
     path('ioc_feeds/ioc_type/<str:ioc_type>/', IocTypeViewSet.as_view({
         "get": "get"
     })),
-    path('ioc_feeds/ioc_type/<str:ioc_type>/length/', IocTypeViewSet.as_view({
-        "get": "length"
+    path('ioc_feeds/ioc_type/count', IocTypeViewSet.as_view({
+        "get": "count"
     })),
     path('ioc_feeds/stats/new_iocs/length/', StatsViewSet.as_view({
         "get": "new_iocs_length"

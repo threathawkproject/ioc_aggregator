@@ -13,7 +13,6 @@ class Command(BaseCommand):
         # using the Kafka singleton instance
         consumer = KafkaConsumerWrapper.instance()
         for ioc in consumer:
-            print(ioc.value)
             # checking if the ioc exists in our db
             is_added = ioc_feeds.utils.is_added(ioc.value)
             if is_added:
