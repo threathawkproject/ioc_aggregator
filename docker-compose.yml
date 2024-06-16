@@ -1,12 +1,45 @@
 version: '3.7'
 services:
-    postgres:
-        image: postgres:latest
-        restart: always
-        environment:
-          - POSTGRES_PASSWORD=1234
-          - POSTGRES_DB=ioc_feeds
-        ports:
-          - '5432:5432'
-        volumes: 
-          - ./postgres-data:/var/lib/postgresql/data
+  postgres:
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=ioc_feeds
+    ports:
+      - '5432:5432'
+    networks:
+      - threat_hawk_network
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+    restart: unless-stopped
+    depends_on:
+      - postgres  # Zookeeper starts after Postgres
+    networks:
+      - threat_hawk_network
+      
+  kafka:
+    build: ../kafka-docker
+    ports:
+      - "9092:9092"
+    depends_on:
+      - postgres  # Kafka waits for healthy Postgres
+      - zookeeper  # Kafka waits for healthy Zookeeper
+    environment:
+      DOCKER_API_VERSION: 1.22
+      KAFKA_ADVERTISED_HOST_NAME: 127.0.0.1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+    networks:
+      - threat_hawk_network
+
+networks:
+  threat_hawk_network:
+    external: true
