@@ -20,7 +20,7 @@ python manage.py migrate
 
 ## Step 3: Run the server
 ```bash
-python manage.py runserver
+python manage.py runserver 8004
 ```
 
 ### Exposed Endpoints
@@ -28,7 +28,7 @@ python manage.py runserver
 
 ## Step 4: Run the consumer
 ```bash
-python manage.py ioc_feeds_consumer_job
+python manage.py ioc_feeds_consumer
 ```
 
 ## Step 5: Run the producer
